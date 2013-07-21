@@ -135,26 +135,30 @@
     }
 
   , startTimer: function(task, decrement) {
-      var data = $(this).data('taskTracker');
-      data.options.$countDown.html(task.remaining / 1000);
+      var $self = $(this);
+      var data = $self.data('taskTracker');
+      data.options.$countDown.html(task.remaining);
 
       var runningTimer = setInterval(function() { 
         if (task.remaining === 0) {
           clearInterval(runningTimer);
-          functions.timeExpired(task);
+          functions.timeExpired.call($self, task);
         } else {
           task.remaining -= decrement;
-          data.options.$countDown.html(task.remaining / 1000);
+          data.options.$countDown.html(task.remaining);
         }
-      }, decrement);
+      }, decrement * 1000);
     }
 
   , timeExpired: function(task) {
+      var data = $(this).data('taskTracker');
+
       $('tr[data-id=' + task.id + ']')
         .removeClass('success')
         .find('td.task-remaining').text(task.remaining);
 
       alert('Time for a break!');
+      functions.storeLocalList(data.options.existingTasks);
     }
 
   };
