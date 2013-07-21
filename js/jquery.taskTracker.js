@@ -13,6 +13,7 @@
         var $this = $(this);
         $this.data('taskTracker', {
           options: options,
+          runningTimer: null
         });  
         methods.setup.call($this); 
       });
@@ -34,7 +35,19 @@
       });
 
       data.options.$taskList.on('click', data.$startButton, function(e) {
-        var $row = $(e.target).closest('tr');
+        if (data.runningTimer !== null) {
+          alert('Finish the current task first!');
+          return false;
+        }
+      
+        var $btn;
+        if (e.target.nodeName === 'I') {
+          $btn = $(e.target).parent(); // get btn
+        } else {
+          $btn = $(e.target); // is button
+        }
+        $btn.css('visibility', 'hidden');
+        var $row = $btn.closest('tr');
         var task = functions.getTask(data.options.existingTasks, $row.data('id'));
 
         $row.addClass('success');
@@ -43,15 +56,19 @@
       
       var storedTasks = functions.getLocalList();
       if (storedTasks.length > 0) {
-        // Add stored tasks to html only
+        // Update existingTasks to the localstorage ones
+        data.options.existingTasks = storedTasks;
+        
+        // Add only stored tasks to html
         for (var i = 0, len = storedTasks.length; i < len; i++) {
           data.options.$taskList.prepend(functions.createTableRow(storedTasks[i]));
         }
       } else {
         // Add default tasks to localstorage AND html
         for (var i = 0, len = data.options.existingTasks.length; i < len; i++) {
-          functions.saveTask.call($self, data.options.existingTasks[i]);
+          data.options.$taskList.prepend(functions.createTableRow(data.options.existingTasks[i]));
         }
+        functions.updateLocalList.call($self, data.options.existingTasks);
       }
     }
   };
@@ -74,28 +91,31 @@
       var data = $this.data('taskTracker');
 
       data.options.$taskList.prepend(functions.createTableRow(taskObj));
+      data.options.existingTasks.push(taskObj);
 
-      var allTasks = functions.getLocalList();
-      allTasks.push(taskObj);
-
-      functions.storeLocalList(allTasks);
+      functions.updateLocalList(data.options.existingTasks);
     }
 
     // Create a task obj from form inputs
   , createTaskObj: function() {
       var $this = $(this);
-      var data = $this.data();
-      var task = { 'remaining': data.options.timerLength };
-      
-      var $inpts = $this.find('input[type=text]');
-      $inpts.each(function(i, elem) {
-        if (jQuery.trim(elem.value) === '') {
-          task[elem.getAttribute('name')] = 'TBA';
-        } else {
-          task[elem.getAttribute('name')] = elem.value;
-        }
-      });
+      var data = $this.data('taskTracker');
 
+      var newTaskName = $.trim($('#taskName').val());
+
+      if (newTaskName === '') {
+        alert('Task name has to be longer than 0 chars.');
+        return false;
+      } 
+
+      var d = new Date();
+      
+      var task = {
+        id: d.getTime(),
+        name: newTaskName,
+        date: functions.getReadableDate(d),
+        remaining: data.options.timerLength,
+      };
       return task;
     }
 
@@ -107,12 +127,16 @@
           $tr.append('<td class="task-' + prop + '">' + obj[prop] + '</td>');
         }
       }
-      $tr.append('<td><button type="button" class="btn btn-success" title="Start this task"><i class="icon-play icon-white"></i></button></td>');
+      if (obj.remaining === 0) {
+        $tr.append('<td/>');
+      } else {
+        $tr.append('<td><button type="button" class="btn btn-success" title="Start this task"><i class="icon-play icon-white"></i></button></td>');
+      }
       return $tr;
     }
     
     // Store the list of objects in localstorage
-  , storeLocalList: function(obj) {
+  , updateLocalList: function(obj) {
       localStorage.setItem('taskTracker', JSON.stringify(obj));
     }
     
@@ -134,14 +158,23 @@
       }
     }
 
+  , getReadableDate: function(d) {
+      var curDate = d.getDate();
+      var curMonth = d.getMonth() + 1; //Months are zero based
+      var curYear = d.getFullYear();
+      return curMonth + "/" + curDate + "/" + curYear;
+    }
+
   , startTimer: function(task, decrement) {
       var $self = $(this);
       var data = $self.data('taskTracker');
+
       data.options.$countDown.html(task.remaining);
 
-      var runningTimer = setInterval(function() { 
+      data.runningTimer = setInterval(function() { 
         if (task.remaining === 0) {
-          clearInterval(runningTimer);
+          clearInterval(data.runningTimer);
+          data.runningTimer = null;
           functions.timeExpired.call($self, task);
         } else {
           task.remaining -= decrement;
@@ -158,7 +191,7 @@
         .find('td.task-remaining').text(task.remaining);
 
       alert('Time for a break!');
-      functions.storeLocalList(data.options.existingTasks);
+      functions.updateLocalList(data.options.existingTasks);
     }
 
   };
@@ -186,6 +219,10 @@
   jQuery.fn.taskTracker.defaults = {
     $addButton: $(),
     $taskList: $(),
+    $startButton: $(),
+    $countDown: $(),
+    timerLength: 1500,  // 1500 seconds = 25 minutes
+    timerDecrement: 1,  // 1 second
     existingTasks: []
   };
 })(jQuery);
