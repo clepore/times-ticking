@@ -2,16 +2,16 @@ $(function() {
   var $form = $('form');
 
   $form.taskTracker({
-    addButton: $form.find('button[type=submit]'),
-    taskList: $('table'),
+    $addButton: $form.find('button[type=submit]'),
+    $taskList: $('.task-container'),
+    $startButton: $('.task-container .start-btn'),
+    $countDown: $('.countDown'),
+    timerLength: 25000,  // 25 seconds
+    timerDecrement: 1000,  // One second
     existingTasks: [
-      {"name": "Test Task #1", "date": "12/01/2012", 'remaining': 25},
-      {"name": "Test Task #2", "date": "12/02/2012", 'remaining': 25},
-      {"name": "Test Task #3", "date": "12/03/2012", 'remaining': 25},
-      {"name": "Test Task #4", "date": "12/04/2012", 'remaining': 25},
-      {"name": "Test Task #5", "date": "12/05/2012", 'remaining': 25},
-      {"name": "Test Task #6", "date": "12/06/2012", 'remaining': 25},
-      {"name": "Test Task #7", "date": "12/07/2012", 'remaining': 25}
+      {"id": 1374438506412, "name": "Test Task #1", "date": "12/01/2012", 'remaining': 5000},
+      {"id": 1374438506411, "name": "Test Task #2", "date": "12/02/2012", 'remaining': 5000},
+      {"id": 1374438506410, "name": "Test Task #3", "date": "12/03/2012", 'remaining': 5000}
     ]
   }); 
 });
