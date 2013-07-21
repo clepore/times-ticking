@@ -5,7 +5,7 @@ $(function() {
     $addButton: $form.find('button[type=submit]'),
     $taskList: $('.task-container'),
     $startButton: $('.task-container .start-btn'),
-    $countDown: $('.countDown'),
+    $countDown: $('.countdown'),
     timerLength: 25,  // 25 seconds
     timerDecrement: 1,  // One second
     existingTasks: [
