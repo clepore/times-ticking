@@ -31,7 +31,10 @@
       data.options.$addButton.click(function(e) {
         e.preventDefault();
         var newTask = functions.createTaskObj.call($self);
-        functions.saveTask.call($self, newTask);
+        if (newTask) {
+          functions.saveTask.call($self, newTask);
+          $('#taskName').val('');
+        }
       });
 
       data.options.$taskList.on('click', data.$startButton, function(e) {
