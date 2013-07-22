@@ -64,12 +64,12 @@
         
         // Add only stored tasks to html
         for (var i = 0, len = storedTasks.length; i < len; i++) {
-          data.options.$taskList.prepend(functions.createTableRow(storedTasks[i]));
+          data.options.$taskList.append(functions.createTableRow(storedTasks[i]));
         }
       } else {
         // Add default tasks to localstorage AND html
         for (var i = 0, len = data.options.existingTasks.length; i < len; i++) {
-          data.options.$taskList.prepend(functions.createTableRow(data.options.existingTasks[i]));
+          data.options.$taskList.append(functions.createTableRow(data.options.existingTasks[i]));
         }
         functions.updateLocalList.call($self, data.options.existingTasks);
       }
@@ -93,7 +93,7 @@
       var $this = $(this);         
       var data = $this.data('taskTracker');
 
-      data.options.$taskList.prepend(functions.createTableRow(taskObj));
+      data.options.$taskList.append(functions.createTableRow(taskObj));
       data.options.existingTasks.push(taskObj);
 
       functions.updateLocalList(data.options.existingTasks);
@@ -204,7 +204,7 @@
    *
    * @param options An optional options object.
    * @param options.addButton Add task object.
-   * @param options.taskList The table to prepend the task to.
+   * @param options.taskList The table to append the task to.
    * @param options.existingTasks An array of existing task objects.
    *
    */
