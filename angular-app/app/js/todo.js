@@ -2,7 +2,7 @@ function TodoCtrl($scope, $http, $timeout) {
   
   var timerLen = 25; // seconds
   var decrement = 1;  // seconds
-  var pomodoro = null;
+  var isRunning = false;
 
   function getReadableDate(d) {
     var curDate = d.getDate();
@@ -81,19 +81,22 @@ function TodoCtrl($scope, $http, $timeout) {
 
   
   $scope.startTodoTimer = function(id) {
-    var todo = getTodoById($scope.todos, id);
-    $scope.countdown = todo.remaining;
-    $scope.runTimer(todo);
+    if (!isRunning) {
+      var todo = getTodoById($scope.todos, id);
+      isRunning = true;
+      $scope.countdown = todo.remaining;
+      $scope.runTimer(todo);
+    }
   };
 
   $scope.runTimer = function(todo) {
-    $timeout(function() {
+    var timr = $timeout(function() {
       if (todo.remaining === 0) {
-        $timeout.cancel(pomodoro);
-        pomodoro = null;
+        $timeout.cancel(timr);
+        isRunning = false;
+        updateLocalList($scope.todos); // Save to localstorage
       } else {
         todo.remaining -= decrement;
-        console.log(todo.remaining);
         $scope.countdown = todo.remaining;
         $scope.runTimer(todo);
       }
