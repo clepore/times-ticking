@@ -95,6 +95,7 @@ function TodoCtrl($scope, $http, $timeout) {
         $timeout.cancel(timr);
         isRunning = false;
         updateLocalList($scope.todos); // Save to localstorage
+        alert('Time for a break!');
       } else {
         todo.remaining -= decrement;
         $scope.countdown = todo.remaining;

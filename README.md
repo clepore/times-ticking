@@ -1,6 +1,10 @@
 times-ticking
 =============
 
+Christopher Lepore
+jQuery and Angular Pomodoro-like apps.
+(https://github.com/clepore/times-ticking)
+
 ### Simple pomodoro app in js ###
 (http://en.wikipedia.org/wiki/Pomodoro_Technique)
 
