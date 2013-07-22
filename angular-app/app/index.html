@@ -18,10 +18,12 @@
       <p class='lead'>Pomodoro style</p>
     </header>
     <section class='main-section' ng-controller="TodoCtrl">
-      <form id='taskForm'>
+      <form id='taskForm' name='taskForm'>
         <div class="input-append">
-           <input type="text" id='taskName' class="span4 task-name" placeholder="New Task" ng-model="todoText">
-           <button type="submit" class="btn btn-primary" title='Add New Task' ng-click='addTodo()'><i class="icon-plus icon-white"></i></button>
+           <input type="text" name='name' class="span4 task-name" placeholder="New Task" ng-model="todoText">
+           <button type="submit" class="btn btn-primary" title='Add New Task' ng-click='addTodo()' ng-disabled="isFilled() || taskForm.$invalid">
+              <i class="icon-plus icon-white"></i>
+            </button>
         </div>
       </form>
       <table class="table table-hover task-container">
@@ -45,7 +47,7 @@
           </tr>
       </table>
       <section class='timer-section'>
-        <div class='countdown'>00</div>
+        <div class='countdown' ng-init='countdown'>{{countdown}}</div>
       </section>
     </section>
   </body>

@@ -57,7 +57,7 @@ body {
   right: 11px;
   position: fixed;
   padding: 20px 16px;
-  text-align: center;
+  text-align: right;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
       -ms-box-sizing: border-box;
@@ -68,6 +68,7 @@ body {
   color: #04c;
   font-weight: bold;
   font-size: 50px;
+  width: 56px;
 }
 
 .task-container {

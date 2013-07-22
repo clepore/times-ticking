@@ -1,15 +1,67 @@
-function TodoCtrl($scope, $http) {
-  var timerLength = 25000;
-  var decrement = 1000;
-
-  $http.get('todos/todos.json').success(function(data) {
-    $scope.todos = data;
-  });
-  $scope.orderProp = 'id';
+function TodoCtrl($scope, $http, $timeout) {
   
-  $scope.addTodo = function() {
+  var timerLen = 25; // seconds
+  var decrement = 1;  // seconds
+  var pomodoro = null;
 
-    if ($scope.todoText === '') {
+  function getReadableDate(d) {
+    var curDate = d.getDate();
+    var curMonth = d.getMonth() + 1; // Months are zero based
+    var curYear = d.getFullYear();
+    return curMonth + "/" + curDate + "/" + curYear;
+  }
+
+  function hasLocalStorage() {
+    try {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getLocalList() {
+    var item = localStorage.getItem('taskTracker');
+    if (item !== '' && item !== null) {
+      return JSON.parse(item);
+    }
+    return [];  
+  }
+
+  function updateLocalList(obj) {
+    localStorage.setItem('taskTracker', JSON.stringify(obj));
+  }
+
+  function getTodoById(arr, id) {
+    var len = arr.length;
+    for (i = 0; i < len; i++) {
+      if (+arr[i].id == +id) {
+        return arr[i];
+      }
+    }
+    return {};
+  }
+
+
+  if (!hasLocalStorage()) {
+    alert('Please use a browser that supports localstorage or this app is useless.');
+    return false;
+  }
+
+  // Get existing todos from storage or use sample data
+  $scope.todos = getLocalList();
+  if ($scope.todos.length === 0) {
+    $http.get('todos/todos.json').success(function(data) {
+      $scope.todos = data;
+      updateLocalList(data);
+    });
+  }
+  $scope.orderProp = 'id';
+
+  // Set countdown to 00
+  $scope.countdown = 0;
+ 
+  $scope.addTodo = function() {
+    if ($scope.todoText === '' || $scope.todoText === undefined) {
       alert('Task name has to be longer than 0 chars.');
       return false;
     } 
@@ -19,33 +71,32 @@ function TodoCtrl($scope, $http) {
       id: d.getTime(),
       name: $scope.todoText,
       date: getReadableDate(d),
-      remaining: (timerLength / 1000),
+      remaining: timerLen,
     };
 
-    $scope.todos.push(todo);
-    $scope.todoText = '';
+    $scope.todos.push(todo); // Add to view
+    $scope.todoText = ''; // Clear the form
+    updateLocalList($scope.todos); // Save to localstorage
   };
- 
-  $scope.remaining = function() {
-    var count = 0;
-    angular.forEach($scope.todos, function(todo) {
-      count += todo.done ? 0 : 1;
-    });
-    return count;
-  };
- 
-  $scope.archive = function() {
-    var oldTodos = $scope.todos;
-    $scope.todos = [];
-    angular.forEach(oldTodos, function(todo) {
-      if (!todo.done) $scope.todos.push(todo);
-    });
-  };
-}
 
-function getReadableDate(d) {
-  var curDate = d.getDate();
-  var curMonth = d.getMonth() + 1; //Months are zero based
-  var curYear = d.getFullYear();
-  return curMonth + "/" + curDate + "/" + curYear;
+  
+  $scope.startTodoTimer = function(id) {
+    var todo = getTodoById($scope.todos, id);
+    $scope.countdown = todo.remaining;
+    $scope.runTimer(todo);
+  };
+
+  $scope.runTimer = function(todo) {
+    $timeout(function() {
+      if (todo.remaining === 0) {
+        $timeout.cancel(pomodoro);
+        pomodoro = null;
+      } else {
+        todo.remaining -= decrement;
+        console.log(todo.remaining);
+        $scope.countdown = todo.remaining;
+        $scope.runTimer(todo);
+      }
+    }, decrement * 1000);
+  }
 }
